@@ -1,3 +1,5 @@
+[![Build Status](https://github.com/ThatGuyJustin/ServerTools-1.18.2/actions/workflows/gradle-publish.yml/badge.svg)](https://github.com/ThatGuyJustin/ServerTools-1.18.2/actions/workflows/gradle-publish.yml)
+
 # ServerTools-1.18.2
 A mod I made for my small private SMP Server.
 
