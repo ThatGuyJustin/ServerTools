@@ -9,7 +9,6 @@ import net.minecraft.network.chat.*;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -135,6 +134,7 @@ public class ServerTools
     @SubscribeEvent
     public void onEntityUpdate(LivingEvent.LivingUpdateEvent event){
         if(this.locationCache.containsKey(event.getEntity().getUUID())){
+            if(!this.locationCache.containsKey(event.getEntity().getUUID())) return;
             if(!this.locationCache.get(event.getEntity().getUUID()).equals(event.getEntity().getPosition(0))){
                 this.locationCache.remove(event.getEntity().getUUID());
                 event.getEntity().setInvulnerable(false);
@@ -148,11 +148,11 @@ public class ServerTools
         this.discordHandler.sendWebHookMessage(event.getPlayer(), event.getMessage());
     }
 
-    @SubscribeEvent
-    public static void RegisterCommands(RegisterCommandsEvent event) {
+//    @SubscribeEvent
+//    public static void RegisterCommands(RegisterCommandsEvent event) {
 //        RegisterSlashCommands.register(event.getDispatcher());
-
-    }
+//
+//    }
 
     public static double getTPS() {
         double meanTickTime = ServerLifecycleHooks.getCurrentServer().getAverageTickTime() * 1.0E-6D;
