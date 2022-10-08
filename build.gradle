@@ -228,7 +228,7 @@ shadowJar {
         include(dependency('com.fasterxml.jackson.core:jackson-annotations'))
         include(dependency('com.fasterxml.jackson.core:jackson-databind'))
         include(dependency('club.minnced:discord-webhooks'))
-        include(dependency('org.jetbrains.kotlin:kotlin-stdlib'))
+//        include(dependency('org.jetbrains.kotlin:kotlin-stdlib'))
         include(dependency('com.squareup.okio:okio-jvm'))
         include(dependency('org.json:json'))
     }
