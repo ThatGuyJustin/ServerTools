@@ -1,5 +1,6 @@
 package dev.turtlebongo.ThatGuyJustin.ServerTools;
 
+import com.electronwill.nightconfig.core.UnmodifiableConfig;
 import dev.turtlebongo.ThatGuyJustin.ServerTools.discord.DiscordHandler;
 import dev.turtlebongo.ThatGuyJustin.ServerTools.util.Logger;
 import dev.turtlebongo.ThatGuyJustin.ServerTools.util.StringUtils;
@@ -7,10 +8,13 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.minecraft.network.chat.*;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
@@ -34,6 +38,7 @@ public class ServerTools
     private Date startup = new Date();
     private List<UUID> playerLoginCache = new ArrayList<>();
     private HashMap<UUID, Vec3> locationCache = new HashMap<>();
+    private HashMap<String, List<String>> mob_filter = new HashMap<>();
 
     public ServerTools()
     {
@@ -86,6 +91,7 @@ public class ServerTools
         });
         timer.setName("Server Shutdown Timer");
         timer.start();
+        this.parseValues();
     }
 
     @SubscribeEvent
@@ -148,6 +154,17 @@ public class ServerTools
         this.discordHandler.sendWebHookMessage(event.getPlayer(), event.getMessage());
     }
 
+    @SubscribeEvent
+    public void onEntitySpawn(LivingSpawnEvent event){
+        if(this.mob_filter.containsKey(event.getEntity().getType().getRegistryName().toString())){
+            String world_name = event.getEntity().level.dimension().location().toString();
+            if(this.mob_filter.get(event.getEntity().getType().getRegistryName().toString()).contains(world_name)){
+//                event.setCanceled(true);
+                event.getEntity().remove(Entity.RemovalReason.DISCARDED);
+            }
+        }
+    }
+
 //    @SubscribeEvent
 //    public static void RegisterCommands(RegisterCommandsEvent event) {
 //        RegisterSlashCommands.register(event.getDispatcher());
@@ -179,6 +196,15 @@ public class ServerTools
         MutableComponent finalMsg = new TextComponent(StringUtils.color("&8(")).append(new TextComponent("!").withStyle(s)).append(new TextComponent(StringUtils.color("&8) "))).append(staticMiddle).append(time).append(announce);
 
         return finalMsg;
+    }
+
+    private void parseValues(){
+        List<? extends String> raw_values = Config.mob_filter.get();
+        for(String s: raw_values){
+            String mob_name = s.split("/")[0];
+            String[] worlds = s.split("/")[1].split(",");
+            this.mob_filter.put(mob_name, Arrays.asList(worlds));
+        }
     }
 
 }
