@@ -23,9 +23,9 @@ public class Config {
 
     private static void setupConfig(ForgeConfigSpec.Builder builder) {
 
-        Map<String, String> default_filter = new HashMap<>();
-
-        default_filter.put("minecraft:zombie", "minecraft:the_end");
+//        Map<String, String> default_filter = new HashMap<>();
+//
+//        default_filter.put("minecraft:zombie", "minecraft:the_end");
 
         botToken = builder.comment("The token for the discord bot").define("discord.bot_token", "");
         webhookURL = builder.comment("The Webhook URL for cross platform messaging").define("discord.webhook_url", "");
