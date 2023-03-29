@@ -196,7 +196,7 @@ public class DiscordHandler extends ListenerAdapter {
 
             EmbedBuilder e = new EmbedBuilder().setTitle("Server Status").setDescription("**MOTD**: `" + server.getMotd() + '`')
                     .addField("TPS", Double.toString(ServerTools.getTPS()), true)
-                    .addField("Ram Usage (" + allocated + "MB Allocated", String.format("%s MB/%s MB (`%.1f%%`)", used, total, percent), true)
+                    .addField("Ram Usage (" + allocated + "MB Allocated)", String.format("%s MB/%s MB (`%.1f%%`)", used, total, percent), true)
                     .addField("CPU Usage", cpu, true)
                     .addField("Timer", String.format("**Started at**: <t:%1$s:T> (<t:%1$s:R>)\n**Restart At**: <t:%2$s:T> (<t:%2$s:R>)", this.startup.getTime() / 1000, (this.startup.getTime() / 1000) + 21600), false)
                     .addField(String.format("Online Players (%s/%s)", server.getPlayerCount(), server.getMaxPlayers()), String.format("``` %s ```", String.join(" ", players)), false);
