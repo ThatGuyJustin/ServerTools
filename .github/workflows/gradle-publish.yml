@@ -30,5 +30,5 @@ jobs:
       - name: Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: Package
-          path: build/libs
+          name: ServerTools.jar
+          path: build/libs/ServerTools-1.0.jar
