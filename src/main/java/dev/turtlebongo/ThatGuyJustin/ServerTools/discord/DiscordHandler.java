@@ -106,6 +106,18 @@ public class DiscordHandler extends ListenerAdapter {
                 event.getChannel().sendMessage("Commands added!").queue();
                 return;
             }
+//            if(event.getMessage().getContentDisplay().equals("!test")) {
+//                long maxMemory = Runtime.getRuntime().maxMemory();
+//                long totalMemory = Runtime.getRuntime().totalMemory();
+//                long freeMemory = Runtime.getRuntime().freeMemory();
+//
+//                int used = (int) ((totalMemory-freeMemory) / 1024 / 1024);
+//                int total = (int) (totalMemory / 1024 / 1024);
+//                int allocated = (int) (maxMemory / 1024 / 1024);
+//                double percent = ((double) used / (double) total * 100.00);
+//
+//                event.getChannel().sendMessage("Ram Usage (" + allocated + "MB Allocated\n" + String.format("%s MB/%s MB (`%.1f%%`)", used, total, percent)).queue();
+//            }
         }
 
         if (!event.getChannel().getId().equals(this.chatChannel.getId())) return;
@@ -163,6 +175,7 @@ public class DiscordHandler extends ListenerAdapter {
         if (event.getName().equals("server")) {
 
             long maxMemory = Runtime.getRuntime().maxMemory();
+            long totalMemory = Runtime.getRuntime().totalMemory();
             long freeMemory = Runtime.getRuntime().freeMemory();
 
             SystemInfo si = new SystemInfo();
@@ -171,8 +184,9 @@ public class DiscordHandler extends ListenerAdapter {
 
             MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 
-            int used = (int) ((maxMemory-freeMemory) / 1024 / 1024);
-            int total = (int) (maxMemory / 1024 / 1024);
+            int used = (int) ((totalMemory-freeMemory) / 1024 / 1024);
+            int total = (int) (totalMemory / 1024 / 1024);
+            int allocated = (int) (maxMemory / 1024 / 1024);
             double percent = ((double) used / (double) total * 100.00);
 
             List<String> players = Arrays.asList(server.getPlayerList().getPlayerNamesArray());
@@ -182,7 +196,7 @@ public class DiscordHandler extends ListenerAdapter {
 
             EmbedBuilder e = new EmbedBuilder().setTitle("Server Status").setDescription("**MOTD**: `" + server.getMotd() + '`')
                     .addField("TPS", Double.toString(ServerTools.getTPS()), true)
-                    .addField("Ram Usage", String.format("%s MB/%s MB (`%.1f%%`)", used, total, percent), true)
+                    .addField("Ram Usage (" + allocated + "MB Allocated", String.format("%s MB/%s MB (`%.1f%%`)", used, total, percent), true)
                     .addField("CPU Usage", cpu, true)
                     .addField("Timer", String.format("**Started at**: <t:%1$s:T> (<t:%1$s:R>)\n**Restart At**: <t:%2$s:T> (<t:%2$s:R>)", this.startup.getTime() / 1000, (this.startup.getTime() / 1000) + 21600), false)
                     .addField(String.format("Online Players (%s/%s)", server.getPlayerCount(), server.getMaxPlayers()), String.format("``` %s ```", String.join(" ", players)), false);
