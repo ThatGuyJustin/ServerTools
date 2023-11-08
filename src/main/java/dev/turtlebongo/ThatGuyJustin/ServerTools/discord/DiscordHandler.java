@@ -61,7 +61,7 @@ public class DiscordHandler extends ListenerAdapter {
     @Override
     public void onReady(ReadyEvent event) {
         Logger.info("&7[&dDiscord&7] &fLogged into Discord as " + event.getJDA().getSelfUser().getName() + "#" + event.getJDA().getSelfUser().getDiscriminator(), true);
-        if(!Config.enabledChatBridge.get()) {
+        if(Config.enabledChatBridge.get()) {
             String chatChannel = Config.chatChannel.get();
             if (chatChannel == null) return;
             try {
