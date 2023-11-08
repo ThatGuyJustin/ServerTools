@@ -114,6 +114,9 @@ public class ServerTools
 
     @SubscribeEvent
     public void onLogin(PlayerEvent.PlayerLoggedInEvent event){
+
+        if(event.getPlayer().getName().getString().isEmpty()) return;
+
         event.getPlayer().setInvulnerable(true);
         this.playerLoginCache.add(event.getPlayer().getUUID());
         this.locationCache.put(event.getPlayer().getUUID(), event.getPlayer().getPosition(0));
@@ -151,6 +154,7 @@ public class ServerTools
 
     @SubscribeEvent
     public void onChatMessage(ServerChatEvent event){
+        if(!Config.enabledChatBridge.get()) return;
         this.discordHandler.sendWebHookMessage(event.getPlayer(), event.getMessage());
     }
 

@@ -46,13 +46,16 @@ public class DiscordHandler extends ListenerAdapter {
 
         if (token == null) {
             Logger.error("&7[&dDiscord&7] &fBlank token found. Please insert a token into the config and reboot to continue!", true);
+            return;
         } else {
             Logger.info("&7[&dDiscord&7] &fAttempting Discord Login...", true);
             this.botClient = JDABuilder.createLight(token).setEnabledIntents(GatewayIntent.getIntents(3276799)).build();
             this.botClient.getPresence().setActivity(Activity.watching("The server burn...🔥"));
             this.botClient.addEventListener(this);
         }
-        this.setupWebhook();
+        if(Config.enabledChatBridge.get()) {
+            this.setupWebhook();
+        }
     }
 
     @Override
@@ -119,7 +122,7 @@ public class DiscordHandler extends ListenerAdapter {
 //                event.getChannel().sendMessage("Ram Usage (" + allocated + "MB Allocated\n" + String.format("%s MB/%s MB (`%.1f%%`)", used, total, percent)).queue();
 //            }
         }
-
+        if(!Config.enabledChatBridge.get()) return;
         if (!event.getChannel().getId().equals(this.chatChannel.getId())) return;
 
         String color = "#5865F2";

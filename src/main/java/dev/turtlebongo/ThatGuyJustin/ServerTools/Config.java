@@ -12,6 +12,7 @@ public class Config {
     public static ForgeConfigSpec.ConfigValue<String> webhookURL;
     public static ForgeConfigSpec.ConfigValue<String> chatChannel;
     public static ForgeConfigSpec.ConfigValue<String> loggingChannel;
+    public static ForgeConfigSpec.ConfigValue<Boolean> enabledChatBridge;
     public static ForgeConfigSpec.ConfigValue<List<? extends String>> admin_roles;
     public static ForgeConfigSpec.ConfigValue<List<? extends String>> mob_filter;
 
@@ -31,6 +32,7 @@ public class Config {
         webhookURL = builder.comment("The Webhook URL for cross platform messaging").define("discord.webhook_url", "");
         chatChannel = builder.comment("The Channel to post all the messages to").define("discord.chat_channel", "");
         loggingChannel = builder.comment("The Channel to post all the log messages to").define("discord.logging_channel", "");
+        enabledChatBridge = builder.comment("Whether to enable the chat bridge or not").define("discord.enable_chat_bridge", false);
         admin_roles = builder
                 .comment("These roles are labeled as Admins to the bot")
                 .defineList("discord.admin_roles", Arrays.asList("000000000000000"), entry -> true);
