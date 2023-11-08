@@ -168,8 +168,9 @@ public class DiscordHandler extends ListenerAdapter {
     }
 
     public void shutdown() {
-        this.webhookClient.close();
         this.botClient.shutdown();
+        if (this.webhookClient == null) return;
+        this.webhookClient.close();
     }
 
     @Override
