@@ -61,13 +61,15 @@ public class DiscordHandler extends ListenerAdapter {
     @Override
     public void onReady(ReadyEvent event) {
         Logger.info("&7[&dDiscord&7] &fLogged into Discord as " + event.getJDA().getSelfUser().getName() + "#" + event.getJDA().getSelfUser().getDiscriminator(), true);
-        String chatChannel = Config.chatChannel.get();
-        if (chatChannel == null) return;
-        try {
-            this.chatChannel = this.botClient.getTextChannelById(Config.chatChannel.get());
-        } catch (NullPointerException e) {
-            Logger.error("&7[&dDiscord&7] &fUnable to get chat channel: Null Pointer Exception", true);
-            e.printStackTrace();
+        if(!Config.enabledChatBridge.get()) {
+            String chatChannel = Config.chatChannel.get();
+            if (chatChannel == null) return;
+            try {
+                this.chatChannel = this.botClient.getTextChannelById(Config.chatChannel.get());
+            } catch (NullPointerException e) {
+                Logger.error("&7[&dDiscord&7] &fUnable to get chat channel: Null Pointer Exception", true);
+                e.printStackTrace();
+            }
         }
         if(Config.loggingChannel.get() != null){
             TextChannel logs = this.botClient.getTextChannelById(Config.loggingChannel.get());
