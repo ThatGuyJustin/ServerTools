@@ -112,15 +112,15 @@ public class ServerTools
         this.discordHandler.shutdown();
     }
 
-    @SubscribeEvent
-    public void onLogin(PlayerEvent.PlayerLoggedInEvent event){
-
-        if(event.getPlayer().getName().getString().isEmpty()) return;
-
-        event.getPlayer().setInvulnerable(true);
-        this.playerLoginCache.add(event.getPlayer().getUUID());
-        this.locationCache.put(event.getPlayer().getUUID(), event.getPlayer().getPosition(0));
-    }
+//    @SubscribeEvent
+//    public void onLogin(PlayerEvent.PlayerLoggedInEvent event){
+//        try {
+////            event.getPlayer().setInvulnerable(false);
+//            this.playerLoginCache.add(event.getPlayer().getUUID());
+//            this.locationCache.put(event.getPlayer().getUUID(), event.getPlayer().getPosition(0));
+//        }catch (Exception e){
+//        }
+//    }
 
     @SubscribeEvent
     public void onLogoff(PlayerEvent.PlayerLoggedOutEvent event){
