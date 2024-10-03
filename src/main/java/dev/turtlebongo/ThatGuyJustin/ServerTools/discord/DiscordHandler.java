@@ -21,10 +21,10 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.AttachedFile;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.server.ServerLifecycleHooks;
@@ -131,8 +131,9 @@ public class DiscordHandler extends ListenerAdapter {
         TextColor hex = TextColor.parseColor(color);
         Style ds = Style.EMPTY.withColor(hex);
         Style s = Style.EMPTY.withColor(event.getMember().getColorRaw());
-        MutableComponent user = new TextComponent(String.format("%s", event.getAuthor().getName())).withStyle(s);
-        MutableComponent msg = new TextComponent(StringUtils.color("&8[")).append(new TextComponent("D").withStyle(ds)).append(StringUtils.color("&8] ")).append(user).append(StringUtils.color("&8 » &7" + event.getMessage().getContentDisplay()));
+        Component user = Component.literal(String.format("%s", event.getAuthor().getName())).withStyle(s);
+//        MutableComponent user = new TextComponent(String.format("%s", event.getAuthor().getName())).withStyle(s);
+        MutableComponent msg = Component.literal(StringUtils.color("&8[")).append(Component.literal("D").withStyle(ds)).append(StringUtils.color("&8] ")).append(user).append(StringUtils.color("&8 » &7" + event.getMessage().getContentDisplay()));
 
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 
