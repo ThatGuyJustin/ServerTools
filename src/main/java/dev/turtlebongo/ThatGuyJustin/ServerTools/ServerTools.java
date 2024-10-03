@@ -72,7 +72,6 @@ public class ServerTools
 //                sleepUntilBroadcast(10000, buildAnnouncement("in 10 Seconds ", "#ca4744"));
                 int rootHours = Config.restartHours.get();
                 sleepUntilBroadcast((long) (rootHours - 1) * 60 * 60 * 1000, buildAnnouncement("in 1 Hour", "#fcff00"));
-                sleepUntilBroadcast(300 * 60 * 1000, buildAnnouncement("in 1 Hour", "#fcff00"));
                 sleepUntilBroadcast(30 * 60 * 1000, buildAnnouncement("in 30 Minutes", "#fbed00"));
                 sleepUntilBroadcast(20 * 60 * 1000, buildAnnouncement("in 10 Minutes", "#f9dc00"));
                 sleepUntilBroadcast(5 * 60 * 1000, buildAnnouncement("in 5 Minutes", "#f5ca00"));
