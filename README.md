@@ -1,38 +1,25 @@
-[![Build Status](https://github.com/ThatGuyJustin/ServerTools-1.18.2/actions/workflows/gradle-publish.yml/badge.svg)](https://github.com/ThatGuyJustin/ServerTools-1.18.2/actions/workflows/gradle-publish.yml)
 
-# ServerTools-1.18.2
-A mod I made for my small private SMP Server.
+Installation information
+=======
 
-# Setup
-1) Download [Kotlin for Forge](https://www.curseforge.com/minecraft/mc-mods/kotlin-for-forge)
-2) Download the jar
-3) Place both mods into mods folder
-4) Configure the mod, reboot server!
+This template repository can be directly cloned to get you started with a new
+mod. Simply create a new repository cloned from this one, by following the
+instructions provided by [GitHub](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
 
-# Commands
-`!mc-register` - Registers all the discord /commands
+Once you have your clone, simply open the repository in the IDE of your choice. The usual recommendation for an IDE is either IntelliJ IDEA or Eclipse.
 
-**The slash commands are as follows**
+If at any point you are missing libraries in your IDE, or you've run into problems you can
+run `gradlew --refresh-dependencies` to refresh the local cache. `gradlew clean` to reset everything 
+{this does not affect your code} and then start the process again.
 
-| Command | Description |
-| ----------- | ----------- |
-| /ping | Pong! |
-| /tps | Shows current TPS. |
-| /server | Same as above command. |
-| /list | Gives you the online list. |
-| /time | Shows time until restart. |
-| /lilly | 👇⏬⬇ |
-| /disconnect | Allows you to force disconnect yourself if your client crashes but are still connected to the server. |
+Mapping Names:
+============
+By default, the MDK is configured to use the official mapping names from Mojang for methods and fields 
+in the Minecraft codebase. These names are covered by a specific license. All modders should be aware of this
+license. For the latest license text, refer to the mapping file itself, or the reference copy here:
+https://github.com/NeoForged/NeoForm/blob/main/Mojang.md
 
-# Features
-* The server auto-restarts every 6 hours as that's typically recommended for MC Forge.
-* Discord log to show server startup/shutdown as well as logging the disconnect command
-* Timer for the auto restart
-* Minecraft <-> Discord Chat bridge (With support RGB for Users role color)
-* Makes player invulnerable upon login until the player either moves or interacts with the world to avoid death due to slow/laggy logins
-
-## Potential Future Features:
-* Minecraft -> Discord connection
-* Server side commands
-* More Logging?
-* /shrug
+Additional Resources: 
+==========
+Community Documentation: https://docs.neoforged.net/  
+NeoForged Discord: https://discord.neoforged.net/
