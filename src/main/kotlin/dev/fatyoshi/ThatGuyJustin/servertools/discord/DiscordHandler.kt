@@ -4,6 +4,7 @@ import dev.fatyoshi.thatguyjustin.servertools.Config
 import dev.fatyoshi.thatguyjustin.servertools.ServerTools
 import dev.fatyoshi.thatguyjustin.servertools.WhitelistConfig
 import dev.fatyoshi.thatguyjustin.servertools.util.Logger
+import dev.fatyoshi.thatguyjustin.servertools.util.sendAll
 import dev.minn.jda.ktx.interactions.commands.*
 import dev.minn.jda.ktx.jdabuilder.intents
 import dev.minn.jda.ktx.jdabuilder.light
@@ -39,10 +40,10 @@ import java.util.*
 import java.util.function.Consumer
 import kotlin.io.path.absolute
 import kotlin.io.path.name
+import kotlin.time.Duration
 
-class DiscordHandler(startup: Date): ListenerAdapter() {
+class DiscordHandler(private var startup: Date): ListenerAdapter() {
     private lateinit var chatChannel: TextChannel
-    private lateinit var startup: Date
     lateinit var botClient: JDA
 
     companion object {
@@ -50,7 +51,6 @@ class DiscordHandler(startup: Date): ListenerAdapter() {
     }
 
     init{
-        this.startup = startup
         val token = Config.botToken?.get()
 
         if(token == null){
@@ -98,8 +98,10 @@ class DiscordHandler(startup: Date): ListenerAdapter() {
 
         val payload = DataObject.empty().put("content", msg)
 
+        val avatarUrl = Config.avatarSkinProxy!!.get().replace("%uuid%", p.uuid.toString()).replace("%uuid-no-dash%", p.uuid.toString().replace("-", ""))
+
         payload.put("username", p.name.string)
-        payload.put("avatar_url", "https://skins.smpearth.dev/owo/${p.uuid.toString().replace("-", "")}")
+        payload.put("avatar_url", avatarUrl)
 
         payload.put("allowed_mentions",
             DataObject.empty().put("parse", DataArray.empty().add("users")))
@@ -170,11 +172,10 @@ class DiscordHandler(startup: Date): ListenerAdapter() {
         if (!Config.enabledChatBridge!!.get()) return
         if (event.channel.id != chatChannel.id) return
 
-//        val color = "#5865F2"
-//        val hex = TextColor.parseColor(color)
-//        val ds = Style.EMPTY.withColor(hex)
-//        val s = Style.EMPTY.withColor(event.member!!.colorRaw)
-//        val user: Component = Component.literal(event.member!!.nickname ?: event.author.globalName ?: event.author.name).withStyle(s)
+        val discordColor = "#5865F2"
+        val memberColor = event.member!!.colors.primary ?: "#99aab5"
+        val user = "<color:$memberColor>${event.member!!.nickname ?: event.author.globalName ?: event.author.name}<reset>"
+
 
         var peopleToPing = mutableListOf<String>()
         var tmpMsg = event.message.contentDisplay
@@ -184,24 +185,14 @@ class DiscordHandler(startup: Date): ListenerAdapter() {
                 if(ServerLifecycleHooks.getCurrentServer()!!.playerList.playerNamesArray.contains(match.value.replace("@", ""))) {
                     if(!peopleToPing.contains(match.value.replace("@", "")))
                         peopleToPing.add(match.value.replace("@", ""))
-                    tmpMsg = tmpMsg.replace(match.value, "&a${match.value}&7")
+                    tmpMsg = tmpMsg.replace(match.value, "<green>${match.value}<gray>")
                 }
             }
         }
 
-//        val msg: MutableComponent =
-//            Component.literal(StringUtils.color("&8[")).append(Component.literal("D").withStyle(ds))
-//                .append(StringUtils.color("&8] ")).append(user)
-//                .append(StringUtils.color("&8 » &7${tmpMsg}"))
+        val msg = "<dark_gray>[<color:$discordColor>D<dark_gray>] $user <dark_gray>» <gray>${tmpMsg}"
 
-//        val server = ServerLifecycleHooks.getCurrentServer()
-//
-//        for (p in server.playerList.players) {
-//            if(peopleToPing.contains<String>(p.name.string)){
-//                p.level().playSound(p, p.blockPosition(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.MASTER, 1.0f, 1.0f)
-//            }
-//            p.displayClientMessage(msg, false)
-//        }
+        sendAll(msg)
     }
 
     override fun onSlashCommandInteraction(event: SlashCommandInteractionEvent) {
@@ -266,7 +257,7 @@ class DiscordHandler(startup: Date): ListenerAdapter() {
                         String.format(
                             "**Started at**: <t:%1\$s:T> (<t:%1\$s:R>)\n**Restart At**: <t:%2\$s:T> (<t:%2\$s:R>)",
                             startup.time / 1000,
-                            startup.time / 1000 + (Config.restartHours!!.get() * 60 * 60)
+                            startup.time / 1000 + (Duration.parse(Config.restartTime!!.get()).inWholeSeconds)
                         ),
                         false
                     )

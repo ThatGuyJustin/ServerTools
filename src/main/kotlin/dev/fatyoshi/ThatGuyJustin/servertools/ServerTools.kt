@@ -3,6 +3,8 @@ package dev.fatyoshi.thatguyjustin.servertools
 import de.maxhenkel.admiral.MinecraftAdmiral
 import dev.fatyoshi.thatguyjustin.servertools.discord.DiscordHandler
 import dev.fatyoshi.thatguyjustin.servertools.util.Logger
+import dev.fatyoshi.thatguyjustin.servertools.util.mm
+import dev.fatyoshi.thatguyjustin.servertools.util.sendAll
 import dev.fatyoshi.thatguyjustin.servertools.util.sendMM
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
@@ -22,17 +24,19 @@ import net.neoforged.neoforge.event.server.ServerStartingEvent
 import net.neoforged.neoforge.event.server.ServerStoppedEvent
 import net.neoforged.neoforge.event.server.ServerStoppingEvent
 import net.neoforged.neoforge.server.ServerLifecycleHooks
+import org.apache.commons.compress.harmony.pack200.PackingUtils.config
+import java.time.LocalDateTime
 import java.util.*
+import kotlin.time.Duration
+import kotlin.time.toJavaDuration
 
 @Mod("servertools")
 class ServerTools {
     private var adventure: MinecraftServerAudiences? = null
-
+    private val noticesRegex = Regex("""^time=(?<duration>[^,]+),message=(?<message>.*)$""")
     private var discordHandler: DiscordHandler? = null
     private var timer: Thread? = null
-    private val startup = Date()
-    private val playerLoginCache: List<UUID> = ArrayList()
-    private val locationCache = HashMap<UUID, Vec3>()
+    private var startup: Date? = null
     private val mob_filter = HashMap<String, List<String>>()
     private var timerStop = false
 
@@ -49,21 +53,9 @@ class ServerTools {
         instance = this
     }
 
-    /**
-     * Fired on the global Forge bus.
-     */
-//    private fun onServerSetup(event: FMLDedicatedServerSetupEvent) {
-//        Logger
-//    }
-
     @SubscribeEvent
     fun onServerStarting(event: ServerStartingEvent) {
         this.adventure = MinecraftServerAudiences.of(event.getServer())
-
-        if (Config.discordEnabled!!.get()) {
-            Logger.info("Starting Discord Handler...", true)
-            this.discordHandler = DiscordHandler(this.startup)
-        }
     }
 
     @SubscribeEvent
@@ -79,44 +71,6 @@ class ServerTools {
     }
 
 
-    //    @SubscribeEvent
-    //    public void onLogin(PlayerEvent.PlayerLoggedInEvent event){
-    //        try {
-    ////            event.getPlayer().setInvulnerable(true);
-    //            this.playerLoginCache.add(event.getPlayer().getUUID());
-    //            this.locationCache.put(event.getPlayer().getUUID(), event.getPlayer().getPosition(0));
-    //        }catch (Exception e){
-    //        }
-    //    }
-    //    @SubscribeEvent
-    //    public void onLogoff(PlayerEvent.PlayerLoggedOutEvent event){
-    //        if(this.playerLoginCache.contains(event.getPlayer().getUUID())){
-    //            event.getPlayer().setInvulnerable(false);
-    //            this.playerLoginCache.remove(event.getPlayer().getUUID());
-    //        }
-    //    }
-    //
-    //    @SubscribeEvent
-    //    public void onPlayerInteract(PlayerInteractEvent event){
-    //        if(this.playerLoginCache.contains(event.getPlayer().getUUID())){
-    //            event.getPlayer().getPosition(0);
-    //            event.getPlayer().setInvulnerable(false);
-    //            this.playerLoginCache.remove(event.getPlayer().getUUID());
-    //            this.locationCache.remove(event.getPlayer().getUUID());
-    //        }
-    //    }
-    //
-    //    @SubscribeEvent
-    //    public void onEntityUpdate(LivingEvent.LivingUpdateEvent event){
-    //        if(this.locationCache.containsKey(event.getEntity().getUUID())){
-    //            if(!this.locationCache.containsKey(event.getEntity().getUUID())) return;
-    //            if(!this.locationCache.get(event.getEntity().getUUID()).equals(event.getEntity().getPosition(0))){
-    //                this.locationCache.remove(event.getEntity().getUUID());
-    //                event.getEntity().setInvulnerable(false);
-    //                this.playerLoginCache.remove(event.getEntity().getUUID());
-    //            }
-    //        }
-    //    }
     @SubscribeEvent
     fun onChatMessage(event: ServerChatEvent) {
         if (!Config.discordEnabled!!.get()) return
@@ -126,46 +80,49 @@ class ServerTools {
 
     @SubscribeEvent
     fun onServerStarted(event: ServerStartedEvent) {
-        val server_dir = ServerLifecycleHooks.getCurrentServer()!!.serverDirectory
+        Logger.debug("Server starting!")
+        this.startup = Date()
+
+        if (Config.discordEnabled!!.get()) {
+            Logger.info("Starting Discord Handler...", true)
+            this.discordHandler = DiscordHandler(this.startup!!)
+        }
+
+        this.parseValues()
+
+        if (Config.enableRestartTimer!!.get() == false) return
+
         timer = Thread {
             try {
-                val server = ServerLifecycleHooks.getCurrentServer()!!
+                val restartIn = Duration.parse(Config.restartTime!!.get())
+
+                // Time to make the config more system readable...and sort it...
+                var rawMessageTimes = HashMap<Duration, String>()
+                Config.restartTimerNotices!!.get().forEach { rawCfgValue ->
+                    val match = noticesRegex.find(rawCfgValue)
+                    if (match != null) {
+                        val rawDuration = match.groups["duration"]?.value
+                        val message = match.groups["message"]?.value
+                        val duration = Duration.parse(rawDuration!!)
+                        if (message != null) rawMessageTimes[duration] = message
+                    }
+                }
+
+                // In the end we want it as longest duration to the shortest duration.
+                val messageTimes = rawMessageTimes.toSortedMap().reversed().toMap()
+
+
+                Logger.info("&fStartup Time&7: &a${this.startup}", true)
+                Logger.info("&fConfigured Restart Time&7: &a${this.startup!!.toInstant().plus(restartIn.toJavaDuration())}", true)
                 Logger.info("Timer started!", true)
-//                sleepUntilBroadcast(10000, buildAnnouncement("in 1 Hour     ", "#F0B3FF"));
-//                sleepUntilBroadcast(10000, buildAnnouncement("in 30 Minutes ", "#E380FF"));
-//                sleepUntilBroadcast(10000, buildAnnouncement("in 10 Minutes ", "#D04DFF"));
-//                sleepUntilBroadcast(10000, buildAnnouncement("in 5 Minutes  ", "#BE1FFF"));
-//                sleepUntilBroadcast(10000, buildAnnouncement("in 1 Minute   ", "#AD00F7"));
-//                sleepUntilBroadcast(10000, buildAnnouncement("in 10 Seconds ", "#9B00E0"));
-                val rootHours = Config.restartHours!!.get()
-//                sleepUntilBroadcast(
-//                    (rootHours - 1).toLong() * 60 * 60 * 1000,
-//                    buildAnnouncement("in 1 Hour", "#F0B3FF")
-//                )
-//                sleepUntilBroadcast((30 * 60 * 1000).toLong(), buildAnnouncement("in 30 Minutes ", "#E380FF"))
-//                sleepUntilBroadcast((20 * 60 * 1000).toLong(), buildAnnouncement("in 10 Minutes ", "#D04DFF"))
-//                sleepUntilBroadcast((5 * 60 * 1000).toLong(), buildAnnouncement("in 5 Minutes ", "#BE1FFF"))
-//                sleepUntilBroadcast((4 * 60 * 1000).toLong(), buildAnnouncement("in 1 Minute ", "#AD00F7"))
-//                sleepUntilBroadcast(50000, buildAnnouncement("in 10 Seconds ", "#9B00E0"))
-//                val colors = arrayOf(
-//                    "#8A00C9",
-//                    "#7800B3",
-//                    "#67009C",
-//                    "#550086",
-//                    "#44006F",
-//                    "#330058",
-//                    "#29004A",
-//                    "#1F003B",
-//                    "#15002D",
-//                    "#0C001F"
-//                )
-//                colors.reverse()
-//                var countdown = 9
-//                while (countdown > 0) {
-//                    sleepUntilBroadcast(1000, buildAnnouncement("in $countdown Seconds  ", colors[countdown]))
-//                    countdown--
-//                }
-//                server.sendSystemMessage(buildAnnouncement("RIGHT NOW ", colors[0]))
+
+                var currentSleep = restartIn
+
+                messageTimes.forEach { (duration, message) ->
+                    sleepUntilBroadcast(currentSleep.minus(duration).inWholeMilliseconds, message )
+                    currentSleep = duration
+                }
+
                 instance.timerStop = true
                 instance.shutdownServer()
             } catch (e: InterruptedException) {
@@ -173,8 +130,7 @@ class ServerTools {
             }
         }
         timer!!.name = "Server Shutdown Timer"
-/*        timer!!.start()*/
-        this.parseValues()
+        timer!!.start()
     }
 
     @SubscribeEvent
@@ -233,13 +189,9 @@ class ServerTools {
     }
 
     @Throws(InterruptedException::class)
-    private fun sleepUntilBroadcast(time: Long, msg: Component) {
-        val server = ServerLifecycleHooks.getCurrentServer()!!
+    private fun sleepUntilBroadcast(time: Long, msg: String) {
         Thread.sleep(time)
-        server.sendSystemMessage(msg)
-        for (p in server.playerList.players) {
-            p.displayClientMessage(msg, false)
-        }
+        sendAll(msg)
     }
 
 //    private fun buildAnnouncement(timeLeft: String, hex: String): Component {
