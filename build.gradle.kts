@@ -51,7 +51,7 @@ val admiralDepVersion: String = "$admiralVersion+$minecraftVersion+neoforge"
 val okhttpVersion: String by project
 val okioVersion: String by project
 val nvWebSocketClientVersion: String by project
-
+val ccCollections4Version: String by project
 
 version = modVersion
 group = modGroupId
@@ -155,7 +155,8 @@ dependencies {
         "com.squareup.okhttp3:okhttp:$okhttpVersion",
         "com.squareup.okio:okio:$okioVersion",
         "maven.modrinth:admiral:$admiralDepVersion",
-        "com.neovisionaries:nv-websocket-client:$nvWebSocketClientVersion"
+        "com.neovisionaries:nv-websocket-client:$nvWebSocketClientVersion",
+        "org.apache.commons:commons-collections4:$ccCollections4Version"
     )
 
     // Fucking hate slf4j

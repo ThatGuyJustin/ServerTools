@@ -23,7 +23,6 @@ object Config {
     var enforce_whitelist: ModConfigSpec.ConfigValue<Boolean>? = null
     var max_whitelist_per_player: ModConfigSpec.ConfigValue<Int>? = null
 
-
     val defaultMessagesConfig = listOf(
         "time=1h,message=<gold>Server reboot in <bold><yellow>1 hour<gold><bold>!",
         "time=30m,message=<gold>Server reboot in <bold><yellow>30 Minutes<gold><bold>!",

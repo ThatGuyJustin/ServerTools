@@ -18,11 +18,10 @@ val mm = MiniMessage.builder()
     .build()
 
 fun String.mm(instance: MiniMessage = mm) = instance.deserialize(this)
-fun Player.getAudience(): Audience { return ServerTools.instance.adventure().player(this.uuid) }
+
 fun Player.sendComponent(component: Component) = this.getAudience().sendMessage(component)
 fun Player.sendMM(msg: String, instance: MiniMessage = mm) = this.getAudience().sendMessage(msg.mm(instance))
 
-fun ServerPlayer.getAudience(): Audience { return ServerTools.instance.adventure().player(this.uuid) }
 fun ServerPlayer.sendComponent(component: Component) = this.getAudience().sendMessage(component)
 fun ServerPlayer.sendMM(msg: String, instance: MiniMessage = mm) = this.getAudience().sendMessage(msg.mm(instance))
 
