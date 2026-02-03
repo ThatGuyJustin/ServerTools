@@ -11,7 +11,10 @@ plugins {
 }
 
 fun DependencyHandlerScope.implCollection(vararg implementations: String) {
-    for (impl in implementations) { implementation(impl) }
+    for (impl in implementations) {
+        implementation(impl)
+        jarJar(implementation(impl) as Any)
+    }
 }
 
 fun DependencyHandlerScope.compileCollection(vararg implementations: String) {
@@ -35,6 +38,7 @@ val jacksonVersion: String by project
 val parchmentMappingsVersion: String by project
 val parchmentMinecraftVersion: String by project
 val kotlinSerializationVersion: String by project
+val kotlinCoroutinesVersion: String by project
 val jdaVersion: String by project
 val slf4jVersion: String by project
 val jdaKTXVersion: String by project
@@ -46,6 +50,8 @@ val admiralVersion: String by project
 val admiralDepVersion: String = "$admiralVersion+$minecraftVersion+neoforge"
 val okhttpVersion: String by project
 val okioVersion: String by project
+val nvWebSocketClientVersion: String by project
+
 
 version = modVersion
 group = modGroupId
@@ -132,10 +138,12 @@ configurations.all {
 }
 
 dependencies {
+    implementation("net.neoforged:neoforge:$neoVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinSerializationVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinSerializationVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${kotlinCoroutinesVersion}")
+
     implCollection(
-        "net.neoforged:neoforge:$neoVersion",
-        "org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinSerializationVersion",
-        "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinSerializationVersion",
         "net.dv8tion:JDA:$jdaVersion",
         "club.minnced:jda-ktx:$jdaKTXVersion",
         "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
@@ -146,7 +154,8 @@ dependencies {
         "net.kyori:adventure-platform-neoforge:$adventurePlatformVersion",
         "com.squareup.okhttp3:okhttp:$okhttpVersion",
         "com.squareup.okio:okio:$okioVersion",
-        "maven.modrinth:admiral:$admiralDepVersion"
+        "maven.modrinth:admiral:$admiralDepVersion",
+        "com.neovisionaries:nv-websocket-client:$nvWebSocketClientVersion"
     )
 
     // Fucking hate slf4j
@@ -154,19 +163,9 @@ dependencies {
         exclude(group = "org.slf4j", module = "slf4j-api")
     }
 
-    jarJar(implementation("net.kyori", "adventure-platform-neoforge", adventurePlatformVersion))
+
     jarJar(implementation("org.jetbrains.kotlin", "kotlin-stdlib", kotlinToolingVersion.toString()))
-    jarJar(implementation("com.squareup.okio", "okio", okioVersion))
-    jarJar(implementation("com.squareup.okhttp3", "okhttp", okhttpVersion))
-    jarJar(implementation("com.fasterxml.jackson.core", "jackson-core", jacksonVersion))
-    jarJar(implementation("com.fasterxml.jackson.core", "jackson-databind", jacksonVersion))
-    jarJar(implementation("com.fasterxml.jackson.core", "jackson-annotations", jacksonVersion))
-    jarJar(implementation("net.sf.trove4j", "trove4j", trove4jVersion))
-    jarJar(implementation("com.google.crypto.tink", "tink", tinkVersion))
-    jarJar(implementation("net.dv8tion", "JDA", jdaVersion))
-    jarJar(implementation("club.minnced", "jda-ktx", jdaKTXVersion))
     jarJar(implementation("club.minnced", "discord-webhooks", discordWebhookVersion))
-    jarJar(implementation("maven.modrinth", "admiral", admiralDepVersion))
 }
 
 tasks.processResources {
