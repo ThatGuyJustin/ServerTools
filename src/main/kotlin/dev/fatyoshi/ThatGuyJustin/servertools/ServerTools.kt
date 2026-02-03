@@ -1,8 +1,8 @@
 package dev.fatyoshi.thatguyjustin.servertools
 
+import de.maxhenkel.admiral.MinecraftAdmiral
 import dev.fatyoshi.thatguyjustin.servertools.discord.DiscordHandler
 import dev.fatyoshi.thatguyjustin.servertools.util.Logger
-import dev.fatyoshi.thatguyjustin.servertools.util.mm
 import dev.fatyoshi.thatguyjustin.servertools.util.sendMM
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
@@ -14,6 +14,7 @@ import net.neoforged.fml.ModLoadingContext
 import net.neoforged.fml.common.Mod
 import net.neoforged.fml.config.ModConfig
 import net.neoforged.neoforge.common.NeoForge
+import net.neoforged.neoforge.event.RegisterCommandsEvent
 import net.neoforged.neoforge.event.ServerChatEvent
 import net.neoforged.neoforge.event.entity.player.PlayerEvent
 import net.neoforged.neoforge.event.server.ServerStartedEvent
@@ -21,7 +22,6 @@ import net.neoforged.neoforge.event.server.ServerStartingEvent
 import net.neoforged.neoforge.event.server.ServerStoppedEvent
 import net.neoforged.neoforge.event.server.ServerStoppingEvent
 import net.neoforged.neoforge.server.ServerLifecycleHooks
-import org.checkerframework.checker.units.qual.mm
 import java.util.*
 
 @Mod("servertools")
@@ -60,7 +60,6 @@ class ServerTools {
     fun onServerStarting(event: ServerStartingEvent) {
         this.adventure = MinecraftServerAudiences.of(event.getServer())
 
-
         if (Config.discordEnabled!!.get()) {
             Logger.info("Starting Discord Handler...", true)
             this.discordHandler = DiscordHandler(this.startup)
@@ -68,14 +67,15 @@ class ServerTools {
     }
 
     @SubscribeEvent
-    fun onServerShutdown(event: ServerStoppedEvent) {
-        this.adventure = null
+    fun onCommandReg(event: RegisterCommandsEvent) {
+        MinecraftAdmiral.builder(event.dispatcher, event.buildContext).addCommandClasses(
+            Commands().javaClass
+        ).build()
     }
 
     @SubscribeEvent
-    fun onJoin(event: PlayerEvent.PlayerLoggedInEvent) {
-        // example :D
-        event.entity.sendMM("<red>Your Mother</red>")
+    fun onServerShutdown(event: ServerStoppedEvent) {
+        this.adventure = null
     }
 
 

@@ -42,6 +42,8 @@ val trove4jVersion: String by project
 val discordWebhookVersion: String by project
 val tinkVersion: String by project
 val adventurePlatformVersion: String by project
+val admiralVersion: String by project
+val admiralDepVersion: String = "$admiralVersion+$minecraftVersion+neoforge"
 
 version = modVersion
 group = modGroupId
@@ -49,7 +51,14 @@ group = modGroupId
 repositories {
     mavenLocal()
     mavenCentral()
+
     maven("https://maven.neoforged.net/releases")
+
+    maven("https://api.modrinth.com/maven") {
+        content {
+            includeGroup("maven.modrinth")
+        }
+    }
 }
 
 base {
@@ -132,7 +141,8 @@ dependencies {
         "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion",
         "net.sf.trove4j:trove4j:$trove4jVersion",
         "com.google.crypto.tink:tink:$tinkVersion",
-        "net.kyori:adventure-platform-neoforge:$adventurePlatformVersion"
+        "net.kyori:adventure-platform-neoforge:$adventurePlatformVersion",
+        "maven.modrinth:admiral:$admiralDepVersion"
     )
 
     // Fucking hate slf4j
@@ -150,6 +160,7 @@ dependencies {
     jarJar(implementation("net.dv8tion", "JDA", jdaVersion))
     jarJar(implementation("club.minnced", "jda-ktx", jdaKTXVersion))
     jarJar(implementation("club.minnced", "discord-webhooks", discordWebhookVersion))
+    jarJar(implementation("maven.modrinth", "admiral", admiralDepVersion))
 }
 
 tasks.processResources {
