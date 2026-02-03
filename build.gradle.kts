@@ -45,6 +45,7 @@ val adventurePlatformVersion: String by project
 val admiralVersion: String by project
 val admiralDepVersion: String = "$admiralVersion+$minecraftVersion+neoforge"
 val okhttpVersion: String by project
+val okioVersion: String by project
 
 version = modVersion
 group = modGroupId
@@ -144,6 +145,7 @@ dependencies {
         "com.google.crypto.tink:tink:$tinkVersion",
         "net.kyori:adventure-platform-neoforge:$adventurePlatformVersion",
         "com.squareup.okhttp3:okhttp:$okhttpVersion",
+        "com.squareup.okio:okio:$okioVersion",
         "maven.modrinth:admiral:$admiralDepVersion"
     )
 
@@ -154,6 +156,7 @@ dependencies {
 
     jarJar(implementation("net.kyori", "adventure-platform-neoforge", adventurePlatformVersion))
     jarJar(implementation("org.jetbrains.kotlin", "kotlin-stdlib", kotlinToolingVersion.toString()))
+    jarJar(implementation("com.squareup.okio", "okio", okioVersion))
     jarJar(implementation("com.squareup.okhttp3", "okhttp", okhttpVersion))
     jarJar(implementation("com.fasterxml.jackson.core", "jackson-core", jacksonVersion))
     jarJar(implementation("com.fasterxml.jackson.core", "jackson-databind", jacksonVersion))
