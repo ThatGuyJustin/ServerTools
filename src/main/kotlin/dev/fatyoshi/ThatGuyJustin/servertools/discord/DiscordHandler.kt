@@ -392,5 +392,4 @@ class DiscordHandler(private var startup: Date): ListenerAdapter() {
         val profile = ServerLifecycleHooks.getCurrentServer()!!.profileCache?.get(uuid)?.orElse(null)
         return profile?.name ?: "Unknown Player"
     }
-
 }

@@ -3,14 +3,10 @@ package dev.fatyoshi.thatguyjustin.servertools
 import de.maxhenkel.admiral.MinecraftAdmiral
 import dev.fatyoshi.thatguyjustin.servertools.discord.DiscordHandler
 import dev.fatyoshi.thatguyjustin.servertools.util.Logger
-import dev.fatyoshi.thatguyjustin.servertools.util.mm
 import dev.fatyoshi.thatguyjustin.servertools.util.sendAll
-import dev.fatyoshi.thatguyjustin.servertools.util.sendMM
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
 import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences
-import net.minecraft.network.chat.Component
-import net.minecraft.world.phys.Vec3
 import net.neoforged.bus.api.SubscribeEvent
 import net.neoforged.fml.ModLoadingContext
 import net.neoforged.fml.common.Mod
@@ -18,14 +14,11 @@ import net.neoforged.fml.config.ModConfig
 import net.neoforged.neoforge.common.NeoForge
 import net.neoforged.neoforge.event.RegisterCommandsEvent
 import net.neoforged.neoforge.event.ServerChatEvent
-import net.neoforged.neoforge.event.entity.player.PlayerEvent
 import net.neoforged.neoforge.event.server.ServerStartedEvent
 import net.neoforged.neoforge.event.server.ServerStartingEvent
 import net.neoforged.neoforge.event.server.ServerStoppedEvent
 import net.neoforged.neoforge.event.server.ServerStoppingEvent
 import net.neoforged.neoforge.server.ServerLifecycleHooks
-import org.apache.commons.compress.harmony.pack200.PackingUtils.config
-import java.time.LocalDateTime
 import java.util.*
 import kotlin.time.Duration
 import kotlin.time.toJavaDuration
@@ -37,7 +30,7 @@ class ServerTools {
     private var discordHandler: DiscordHandler? = null
     private var timer: Thread? = null
     private var startup: Date? = null
-    private val mob_filter = HashMap<String, List<String>>()
+    private val mobFilter = HashMap<String, List<String>>()
     private var timerStop = false
 
     companion object {
@@ -45,9 +38,7 @@ class ServerTools {
     }
 
     init {
-        // Register ourselves for server and other game events we are interested in
         NeoForge.EVENT_BUS.register(this);
-        // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         ModLoadingContext.get().activeContainer.registerConfig(ModConfig.Type.COMMON, Config.GENERAL_SPEC, "servertools.toml")
 
         instance = this
@@ -125,7 +116,10 @@ class ServerTools {
                 instance.timerStop = true
                 instance.shutdownServer()
             } catch (e: InterruptedException) {
-                e.printStackTrace()
+                if (!this.timerStop) {
+                    Logger.info("Unexpected thread yeeted, shutting down timer thread.", true)
+                    e.printStackTrace()
+                }
             }
         }
         timer!!.name = "Server Shutdown Timer"
@@ -138,11 +132,11 @@ class ServerTools {
         if(!this.timerStop)
             try{
                 this.timer!!.interrupt()
-            }catch (exception: InterruptedException){
+            }catch (_: InterruptedException){
                 Logger.info("Timer stopped.", true)
             }
         if (Config.discordEnabled!!.get()) {
-            if (Config.loggingChannel!!.get() != null) {
+            if (Config.loggingChannel!!.get() != "") {
                 val logs: TextChannel =
                     discordHandler?.botClient?.getTextChannelById(Config.loggingChannel!!.get()) ?: return
                 val msg = String.format(
@@ -172,11 +166,7 @@ class ServerTools {
     //            }
     //        }
     //    }
-    //    @SubscribeEvent
-    //    public static void RegisterCommands(RegisterCommandsEvent event) {
-    //        RegisterSlashCommands.register(event.getDispatcher());
-    //
-    //    }
+
     fun getTPS(): Double {
         val meanTickTime = ServerLifecycleHooks.getCurrentServer()!!.averageTickTimeNanos * 1.0E-6
         return Math.min(1000.0 / meanTickTime, 20.0)
@@ -193,20 +183,6 @@ class ServerTools {
         sendAll(msg)
     }
 
-//    private fun buildAnnouncement(timeLeft: String, hex: String): Component {
-//        val s =
-//            Style.EMPTY.withColor(TextColor.parseColor(hex)).withBold(true)
-//        val staticMiddle: Component =
-//            Component.literal(StringUtils.color("&7Server Reboot will happen "))
-//        val announce = Component.literal(StringUtils.color("&8("))
-//            .append(Component.literal("!").withStyle(s))
-//            .append(Component.literal(StringUtils.color("&8) ")))
-//        val time = Component.literal(timeLeft).withStyle(s)
-//
-//        return Component.literal(StringUtils.color("&8(")).append(Component.literal("!").withStyle(s))
-//            .append(Component.literal(StringUtils.color("&8) "))).append(staticMiddle).append(time).append(announce)
-//    }
-
     private fun parseValues() {
         val raw_values = Config.mob_filter!!.get()
         for (s in raw_values) {
@@ -214,7 +190,7 @@ class ServerTools {
             val worlds = s.split("/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1].split(",".toRegex())
                 .dropLastWhile { it.isEmpty() }
                 .toTypedArray()
-            mob_filter[mob_name] = Arrays.asList(*worlds)
+            mobFilter[mob_name] = Arrays.asList(*worlds)
         }
     }
 

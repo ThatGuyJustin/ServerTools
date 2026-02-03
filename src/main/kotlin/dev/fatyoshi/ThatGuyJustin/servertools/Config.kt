@@ -23,6 +23,10 @@ object Config {
     var enforce_whitelist: ModConfigSpec.ConfigValue<Boolean>? = null
     var max_whitelist_per_player: ModConfigSpec.ConfigValue<Int>? = null
 
+    var notificationSound: ModConfigSpec.ConfigValue<String>? = null
+    var notificationVolume: ModConfigSpec.ConfigValue<Float>? = null
+    var notificationPitch: ModConfigSpec.ConfigValue<Float>? = null
+
     val defaultMessagesConfig = listOf(
         "time=1h,message=<gold>Server reboot in <bold><yellow>1 hour<gold><bold>!",
         "time=30m,message=<gold>Server reboot in <bold><yellow>30 Minutes<gold><bold>!",
@@ -70,6 +74,10 @@ object Config {
         whitelisted_roles = builder.comment("Members with these roles are allowed to use the whitelist command.").define("server.whitelist.whitelist_roles", mutableListOf("000000000000000")) { entry: Any? -> true }
         enforce_whitelist = builder.comment("Should the member roles whitelist be enforced").define("server.whitelist.enforce_whitelist", false)
         max_whitelist_per_player = builder.comment("How many accounts can one person whitelist? [Excluding Admins]").define("server.whitelist.max_whitelist_per_player", 1)
+
+        notificationSound = builder.comment("The sound to play for notifications").define("notifications.sound", "minecraft:entity.experience_orb.pickup")
+        notificationVolume = builder.comment("The volume for the notification sound").define("notifications.volume", 1.0f)
+        notificationPitch = builder.comment("The pitch for the notification sound").define("notifications.pitch", 1.0f)
     }
 }
 

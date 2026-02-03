@@ -61,10 +61,14 @@ repositories {
     mavenCentral()
 
     maven("https://maven.neoforged.net/releases")
-
     maven("https://api.modrinth.com/maven") {
         content {
             includeGroup("maven.modrinth")
+        }
+    }
+    maven("https://cursemaven.com") {
+        content {
+            includeGroup("curse.maven")
         }
     }
 }
@@ -139,6 +143,8 @@ configurations.all {
 
 dependencies {
     implementation("net.neoforged:neoforge:$neoVersion")
+    implementation("curse.maven:ftbessentials-410811:7209620") // https://www.curseforge.com/minecraft/mc-mods/ftb-essentials/files/7209620
+
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinSerializationVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinSerializationVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${kotlinCoroutinesVersion}")
