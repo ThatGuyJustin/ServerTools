@@ -80,7 +80,6 @@ class ServerTools {
 
     @SubscribeEvent
     fun onServerStarted(event: ServerStartedEvent) {
-        Logger.debug("Server starting!")
         this.startup = Date()
 
         if (Config.discordEnabled!!.get()) {
@@ -97,7 +96,7 @@ class ServerTools {
                 val restartIn = Duration.parse(Config.restartTime!!.get())
 
                 // Time to make the config more system readable...and sort it...
-                var rawMessageTimes = HashMap<Duration, String>()
+                val rawMessageTimes = HashMap<Duration, String>()
                 Config.restartTimerNotices!!.get().forEach { rawCfgValue ->
                     val match = noticesRegex.find(rawCfgValue)
                     if (match != null) {

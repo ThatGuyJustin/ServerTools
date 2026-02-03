@@ -1,5 +1,7 @@
 package dev.fatyoshi.thatguyjustin.servertools.util
 
+import java.awt.Color
+
 class StringUtils {
     companion object {
         /**
@@ -13,3 +15,6 @@ class StringUtils {
         }
     }
 }
+
+fun Color.toHex(): String = "#${Integer.toHexString(this.rgb and 0xFFFFFF)}"
+

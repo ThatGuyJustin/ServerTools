@@ -5,6 +5,7 @@ import dev.fatyoshi.thatguyjustin.servertools.ServerTools
 import dev.fatyoshi.thatguyjustin.servertools.WhitelistConfig
 import dev.fatyoshi.thatguyjustin.servertools.util.Logger
 import dev.fatyoshi.thatguyjustin.servertools.util.sendAll
+import dev.fatyoshi.thatguyjustin.servertools.util.toHex
 import dev.minn.jda.ktx.interactions.commands.*
 import dev.minn.jda.ktx.jdabuilder.intents
 import dev.minn.jda.ktx.jdabuilder.light
@@ -67,7 +68,7 @@ class DiscordHandler(private var startup: Date): ListenerAdapter() {
         botClient.updateCommands {
             slash("tps", "Gets the current server TPS.")
             slash("server", "Get current server information.")
-            slash("time", "Shows time left until server reboot.")
+//            slash("time", "Shows time left until server reboot.")
             slash("list", "Gets a list of all the online players.")
             slash("ping", "Cookie!")
             slash("disconnect", "Force disconnect yourself if your client crashes but your user is still connected to the server.") {
@@ -94,7 +95,7 @@ class DiscordHandler(private var startup: Date): ListenerAdapter() {
 
     fun sendWebHookMessage(p: ServerPlayer, msg: String?) {
 
-        if(!Config.enabledChatBridge!!.get() || Config.webhookURL!!.get() == null) return
+        if(!Config.enabledChatBridge!!.get() || Config.webhookURL!!.get() == "") return
 
         val payload = DataObject.empty().put("content", msg)
 
@@ -129,10 +130,10 @@ class DiscordHandler(private var startup: Date): ListenerAdapter() {
     }
 
     override fun onReady(event: ReadyEvent) {
-        Logger.info("&7[&dDiscord&7] &fLogged into Discord as ${event.jda.selfUser.name}#${event.jda.selfUser.discriminator}",  true)
+        Logger.info("&7[&dDiscord&7] &fLogged into Discord as ${event.jda.selfUser.name}#${event.jda.selfUser.discriminator} (${event.jda.selfUser.id})",  true)
 
         if(Config.enabledChatBridge!!.get()) {
-            var chatChannel: String? = Config.chatChannel?.get() ?: return
+            val chatChannel: String = Config.chatChannel?.get() ?: return
 
             try {
                 this.chatChannel = botClient.getTextChannelById(Config.chatChannel!!.get())!!
@@ -143,7 +144,7 @@ class DiscordHandler(private var startup: Date): ListenerAdapter() {
 
         }
 
-        if (Config.loggingChannel!!.get() != null) {
+        if (Config.loggingChannel!!.get() != "") {
             val logs = botClient.getTextChannelById(Config.loggingChannel!!.get())
             val msg = String.format(
                 "[<t:%s:T>] Server has started",
@@ -173,7 +174,7 @@ class DiscordHandler(private var startup: Date): ListenerAdapter() {
         if (event.channel.id != chatChannel.id) return
 
         val discordColor = "#5865F2"
-        val memberColor = event.member!!.colors.primary ?: "#99aab5"
+        val memberColor = event.member!!.colors.primary?.toHex() ?: "#99aab5"
         val user = "<color:$memberColor>${event.member!!.nickname ?: event.author.globalName ?: event.author.name}<reset>"
 
 
@@ -292,7 +293,7 @@ class DiscordHandler(private var startup: Date): ListenerAdapter() {
                 })
                 event.reply("The player specified *should* be disconnected...").setEphemeral(true).queue()
 
-                if (Config.loggingChannel!!.get() != null) {
+                if (Config.loggingChannel!!.get() != "") {
                     val logs = botClient.getTextChannelById(Config.loggingChannel!!.get())
                     val msg = String.format(
                         "[<t:%s:T>] %s `%s` has used the command `/auggie %s` in channel %s",
@@ -327,7 +328,7 @@ class DiscordHandler(private var startup: Date): ListenerAdapter() {
                                 whitelistCfg.users[event.user.id] = list
                                 WhitelistConfig().save(whitelistCfg)
 
-                                if (Config.loggingChannel!!.get() != null) {
+                                if (Config.loggingChannel!!.get() != "") {
                                     val logs = botClient.getTextChannelById(Config.loggingChannel!!.get())
                                     try {
                                         logs!!.sendMessage("[<t:${Date().time / 1000}:T>] ${event.user.asMention} `${event.user.id}` has whitelisted `${username}`").setAllowedMentions(HashSet()).queue()
@@ -355,7 +356,7 @@ class DiscordHandler(private var startup: Date): ListenerAdapter() {
                                 whitelistCfg.users[event.user.id] = list
                                 WhitelistConfig().save(whitelistCfg)
 
-                                if (Config.loggingChannel!!.get() != null) {
+                                if (Config.loggingChannel!!.get() != "") {
                                     val logs = botClient.getTextChannelById(Config.loggingChannel!!.get())
                                     try {
                                         logs!!.sendMessage("[<t:${Date().time / 1000}:T>] ${event.user.asMention} `${event.user.id}` has un-whitelisted `${username}`").setAllowedMentions(HashSet()).queue()
