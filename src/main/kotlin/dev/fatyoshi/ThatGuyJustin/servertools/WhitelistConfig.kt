@@ -1,4 +1,4 @@
-package dev.fatyoshi.ThatGuyJustin.servertools
+package dev.fatyoshi.thatguyjustin.servertools
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json

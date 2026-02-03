@@ -1,4 +1,4 @@
-package dev.fatyoshi.ThatGuyJustin.servertools.util
+package dev.fatyoshi.thatguyjustin.servertools.util
 
 import com.google.common.collect.Maps
 import java.util.regex.Pattern

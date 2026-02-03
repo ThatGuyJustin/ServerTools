@@ -1,10 +1,9 @@
-package dev.fatyoshi.ThatGuyJustin.servertools.discord
+package dev.fatyoshi.thatguyjustin.servertools.discord
 
-import dev.fatyoshi.ThatGuyJustin.servertools.Config
-import dev.fatyoshi.ThatGuyJustin.servertools.ServerTools
-import dev.fatyoshi.ThatGuyJustin.servertools.WhitelistConfig
-import dev.fatyoshi.ThatGuyJustin.servertools.util.Logger
-import dev.fatyoshi.ThatGuyJustin.servertools.util.StringUtils
+import dev.fatyoshi.thatguyjustin.servertools.Config
+import dev.fatyoshi.thatguyjustin.servertools.ServerTools
+import dev.fatyoshi.thatguyjustin.servertools.WhitelistConfig
+import dev.fatyoshi.thatguyjustin.servertools.util.Logger
 import dev.minn.jda.ktx.interactions.commands.*
 import dev.minn.jda.ktx.jdabuilder.intents
 import dev.minn.jda.ktx.jdabuilder.light
@@ -24,15 +23,10 @@ import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.utils.AttachedFile
 import net.dv8tion.jda.api.utils.data.DataArray
 import net.dv8tion.jda.api.utils.data.DataObject
-import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.MutableComponent
-import net.minecraft.network.chat.Style
-import net.minecraft.network.chat.TextColor
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.sounds.SoundEvents
-import net.minecraft.sounds.SoundSource
 import net.neoforged.neoforge.server.ServerLifecycleHooks
 import okhttp3.Call
+import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -40,6 +34,7 @@ import okhttp3.Response
 import oshi.SystemInfo
 import java.io.File
 import java.io.IOException
+import java.lang.Double
 import java.util.*
 import java.util.function.Consumer
 import kotlin.io.path.absolute
@@ -114,7 +109,7 @@ class DiscordHandler(startup: Date): ListenerAdapter() {
             .post(payload.toString().toRequestBody("application/json; charset=utf-8".toMediaType()))
             .build()
 
-        botClient.httpClient.newCall(request).enqueue(object : okhttp3.Callback {
+        botClient.httpClient.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 Logger.error("Unable to send webhook message.", true)
                 e.printStackTrace()
@@ -259,7 +254,7 @@ class DiscordHandler(startup: Date): ListenerAdapter() {
                 ) + "` 15m"
 
                 val e = EmbedBuilder().setTitle("Server Status").setDescription("**MOTD**: `" + server.motd + '`')
-                    .addField("TPS", java.lang.Double.toString(ServerTools.instance.getTPS()), true)
+                    .addField("TPS", Double.toString(ServerTools.instance.getTPS()), true)
                     .addField(
                         "Ram Usage (" + allocated + "MB Allocated)",
                         String.format("%s MB/%s MB (`%.1f%%`)", used, total, percent),

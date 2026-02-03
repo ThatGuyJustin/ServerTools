@@ -1,4 +1,4 @@
-package dev.fatyoshi.ThatGuyJustin.servertools
+package dev.fatyoshi.thatguyjustin.servertools
 
 import net.neoforged.neoforge.common.ModConfigSpec;
 

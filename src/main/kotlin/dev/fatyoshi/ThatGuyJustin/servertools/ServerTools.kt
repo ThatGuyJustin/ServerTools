@@ -1,13 +1,13 @@
-package dev.fatyoshi.ThatGuyJustin.servertools
+package dev.fatyoshi.thatguyjustin.servertools
 
-import dev.fatyoshi.ThatGuyJustin.servertools.discord.DiscordHandler
-import dev.fatyoshi.ThatGuyJustin.servertools.util.Logger
-import dev.fatyoshi.ThatGuyJustin.servertools.util.StringUtils
+import dev.fatyoshi.thatguyjustin.servertools.discord.DiscordHandler
+import dev.fatyoshi.thatguyjustin.servertools.util.Logger
+import dev.fatyoshi.thatguyjustin.servertools.util.mm
+import dev.fatyoshi.thatguyjustin.servertools.util.sendMM
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
+import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.Style
-import net.minecraft.network.chat.TextColor
 import net.minecraft.world.phys.Vec3
 import net.neoforged.bus.api.SubscribeEvent
 import net.neoforged.fml.ModLoadingContext
@@ -15,14 +15,18 @@ import net.neoforged.fml.common.Mod
 import net.neoforged.fml.config.ModConfig
 import net.neoforged.neoforge.common.NeoForge
 import net.neoforged.neoforge.event.ServerChatEvent
+import net.neoforged.neoforge.event.entity.player.PlayerEvent
 import net.neoforged.neoforge.event.server.ServerStartedEvent
 import net.neoforged.neoforge.event.server.ServerStartingEvent
+import net.neoforged.neoforge.event.server.ServerStoppedEvent
 import net.neoforged.neoforge.event.server.ServerStoppingEvent
 import net.neoforged.neoforge.server.ServerLifecycleHooks
+import org.checkerframework.checker.units.qual.mm
 import java.util.*
 
 @Mod("servertools")
 class ServerTools {
+    private var adventure: MinecraftServerAudiences? = null
 
     private var discordHandler: DiscordHandler? = null
     private var timer: Thread? = null
@@ -54,12 +58,26 @@ class ServerTools {
 
     @SubscribeEvent
     fun onServerStarting(event: ServerStartingEvent) {
-        // Do something when the server starts
+        this.adventure = MinecraftServerAudiences.of(event.getServer())
+
+
         if (Config.discordEnabled!!.get()) {
             Logger.info("Starting Discord Handler...", true)
             this.discordHandler = DiscordHandler(this.startup)
         }
     }
+
+    @SubscribeEvent
+    fun onServerShutdown(event: ServerStoppedEvent) {
+        this.adventure = null
+    }
+
+    @SubscribeEvent
+    fun onJoin(event: PlayerEvent.PlayerLoggedInEvent) {
+        // example :D
+        event.entity.sendMM("<red>Your Mother</red>")
+    }
+
 
     //    @SubscribeEvent
     //    public void onLogin(PlayerEvent.PlayerLoggedInEvent event){
@@ -155,7 +173,7 @@ class ServerTools {
             }
         }
         timer!!.name = "Server Shutdown Timer"
-        timer!!.start()
+/*        timer!!.start()*/
         this.parseValues()
     }
 
@@ -247,5 +265,10 @@ class ServerTools {
                 .toTypedArray()
             mob_filter[mob_name] = Arrays.asList(*worlds)
         }
+    }
+
+    fun adventure(): MinecraftServerAudiences {
+        checkNotNull(this.adventure) { "Tried to access Adventure without a running server!" }
+        return this.adventure!!
     }
 }
