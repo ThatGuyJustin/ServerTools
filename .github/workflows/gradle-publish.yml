@@ -26,9 +26,9 @@ jobs:
       - name: Build with Gradle
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: jarJar
+          arguments: jar
       - name: Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ServerTools.jar
-          path: build/libs/servertools-1.0.0-all.jar
+          path: build/libs/servertools-1.0.0.jar

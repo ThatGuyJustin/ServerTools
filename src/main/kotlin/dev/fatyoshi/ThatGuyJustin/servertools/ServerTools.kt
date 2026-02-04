@@ -20,6 +20,7 @@ import net.neoforged.neoforge.event.server.ServerStoppedEvent
 import net.neoforged.neoforge.event.server.ServerStoppingEvent
 import net.neoforged.neoforge.server.ServerLifecycleHooks
 import java.util.*
+import kotlin.text.get
 import kotlin.time.Duration
 import kotlin.time.toJavaDuration
 
@@ -29,9 +30,9 @@ class ServerTools {
     private val noticesRegex = Regex("""^time=(?<duration>[^,]+),message=(?<message>.*)$""")
     private var discordHandler: DiscordHandler? = null
     private var timer: Thread? = null
-    private var startup: Date? = null
     private val mobFilter = HashMap<String, List<String>>()
     private var timerStop = false
+    lateinit var startup: Date
 
     companion object {
         lateinit var instance: ServerTools
@@ -52,7 +53,7 @@ class ServerTools {
     @SubscribeEvent
     fun onCommandReg(event: RegisterCommandsEvent) {
         MinecraftAdmiral.builder(event.dispatcher, event.buildContext).addCommandClasses(
-            Commands().javaClass
+            Commands().javaClass, Uptime().javaClass
         ).build()
     }
 
@@ -116,10 +117,7 @@ class ServerTools {
                 instance.timerStop = true
                 instance.shutdownServer()
             } catch (e: InterruptedException) {
-                if (!this.timerStop) {
-                    Logger.info("Unexpected thread yeeted, shutting down timer thread.", true)
-                    e.printStackTrace()
-                }
+                Logger.warning("&cTimer interrupted, is the server restarting sooner?", true)
             }
         }
         timer!!.name = "Server Shutdown Timer"

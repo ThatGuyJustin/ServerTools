@@ -6,7 +6,12 @@ import de.maxhenkel.admiral.annotations.Command
 import dev.fatyoshi.thatguyjustin.servertools.util.sendMM
 import dev.fatyoshi.thatguyjustin.servertools.util.stplaySound
 import net.kyori.adventure.key.Key
+import dev.fatyoshi.thatguyjustin.servertools.util.toHumanReadable
 import net.minecraft.commands.CommandSourceStack
+import kotlin.time.Clock
+import kotlin.time.Duration
+import kotlin.time.ExperimentalTime
+import kotlin.time.toKotlinInstant
 
 @Command("servertools")
 class Commands {
@@ -38,4 +43,25 @@ class Commands {
         )
     }
 
+}
+
+@Command("uptime")
+class Uptime {
+    @OptIn(ExperimentalTime::class)
+    @Command
+    fun uptime(context: CommandContext<CommandSourceStack>) {
+        if (!context.source.isPlayer) return
+        val currentTime = Clock.System.now()
+        val restartTime = ServerTools.instance.startup.toInstant().toKotlinInstant() + Duration.parse(Config.restartTime!!.get()) - currentTime
+        val timeDelta = currentTime - ServerTools.instance.startup.toInstant().toKotlinInstant()
+
+        context.source.player!!.sendMM(
+            "<dark_gray><st>                              </st>\n"
+                + "<aqua>     Server Uptime\n"
+                + "<dark_gray><st>                              </st>\n"
+                + "<gray>Started<dark_gray>:    <green>${timeDelta.toHumanReadable()} ago\n"
+                + "<gray>Restarting<dark_gray>: <red>in ${restartTime.toHumanReadable()}\n"
+                + "<dark_gray><st>                              </st>"
+        )
+    }
 }

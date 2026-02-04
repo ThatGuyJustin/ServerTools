@@ -1,6 +1,7 @@
 package dev.fatyoshi.thatguyjustin.servertools.util
 
 import java.awt.Color
+import kotlin.time.Duration
 
 class StringUtils {
     companion object {
@@ -17,4 +18,10 @@ class StringUtils {
 }
 
 fun Color.toHex(): String = "#${Integer.toHexString(this.rgb and 0xFFFFFF)}"
+
+fun Duration.toHumanReadable(): String = this.toComponents { hours, minutes, seconds, nanoseconds ->
+    (if(hours >= 1) "$hours Hour${if(hours > 1) "s" else ""} " else "") +
+    (if(minutes >= 1) "$minutes Minute${if(minutes > 1) "s" else ""} " else "") +
+    (if(hours < 1) "$seconds Second${if(seconds > 1) "s" else ""}" else "")
+}
 
