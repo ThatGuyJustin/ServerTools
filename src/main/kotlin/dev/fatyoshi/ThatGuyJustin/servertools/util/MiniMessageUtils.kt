@@ -1,10 +1,12 @@
 package dev.fatyoshi.thatguyjustin.servertools.util
 
+import com.mojang.brigadier.context.CommandContext
 import dev.fatyoshi.thatguyjustin.servertools.ServerTools
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags
+import net.minecraft.commands.CommandSourceStack
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Player
 
@@ -26,3 +28,10 @@ fun ServerPlayer.sendMM(msg: String, instance: MiniMessage = mm) = this.getAudie
 
 fun sendAll(component: Component) = ServerTools.instance.adventure().all().sendMessage(component)
 fun sendAll(msg: String, instance: MiniMessage = mm) = sendAll(msg.mm(instance))
+
+fun CommandContext<CommandSourceStack>.sendMMResponse(msg: String, instance: MiniMessage = mm){
+    if (this.source.isPlayer)
+        this.source.player!!.sendMM(msg)
+    else
+        ServerTools.instance.adventure().console().sendMessage(msg.mm(instance))
+}

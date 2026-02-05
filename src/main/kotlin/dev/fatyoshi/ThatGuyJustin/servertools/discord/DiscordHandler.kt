@@ -68,13 +68,9 @@ class DiscordHandler(private var startup: Date): ListenerAdapter() {
         botClient.updateCommands {
             slash("tps", "Gets the current server TPS.")
             slash("server", "Get current server information.")
-//            slash("time", "Shows time left until server reboot.")
             slash("list", "Gets a list of all the online players.")
             slash("ping", "Cookie!")
             slash("disconnect", "Force disconnect yourself if your client crashes but your user is still connected to the server.") {
-                option<String>("username", "Your Username", true)
-            }
-            slash("auggie", "Force disconnect yourself if your client crashes but your user is still connected to the server.") {
                 option<String>("username", "Your Username", true)
             }
             slash("whitelist", "Whitelist yourself! [Note: Gets Logged]") {

@@ -1,25 +1,41 @@
+[![Build Status](https://github.com/ThatGuyJustin/ServerTools/actions/workflows/gradle-publish.yml/badge.svg)](https://github.com/ThatGuyJustin/ServerTools-1.18.2/actions/workflows/gradle-publish.yml)
 
-Installation information
-=======
+# ServerTools 1.21.1 NeoForge
+A mod I made for small private SMP Servers.
 
-This template repository can be directly cloned to get you started with a new
-mod. Simply create a new repository cloned from this one, by following the
-instructions provided by [GitHub](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
+# Setup
+1) Download [Kotlin for Forge](https://www.curseforge.com/minecraft/mc-mods/kotlin-for-forge)
+2) Download the jar
+3) Place both mods into mods folder
+4) Configure the mod, reboot server!
 
-Once you have your clone, simply open the repository in the IDE of your choice. The usual recommendation for an IDE is either IntelliJ IDEA or Eclipse.
+# Minecraft Commands
+| Command | Permission        | Description                   |
+| ----------- |-------------------|-------------------------------|
+| `/timer` | `servertools.timer` | Commands to control the timer |
+| `/uptime` | `servertools.uptime` | Gives you the server start time and current time remaining until reboot. |
 
-If at any point you are missing libraries in your IDE, or you've run into problems you can
-run `gradlew --refresh-dependencies` to refresh the local cache. `gradlew clean` to reset everything 
-{this does not affect your code} and then start the process again.
+# Discord Commands
 
-Mapping Names:
-============
-By default, the MDK is configured to use the official mapping names from Mojang for methods and fields 
-in the Minecraft codebase. These names are covered by a specific license. All modders should be aware of this
-license. For the latest license text, refer to the mapping file itself, or the reference copy here:
-https://github.com/NeoForged/NeoForm/blob/main/Mojang.md
+Discord commands are bulk registered to the bot on startup. So use a fresh bot account for this, as if you have other commands registered, they will go poof.
 
-Additional Resources: 
-==========
-Community Documentation: https://docs.neoforged.net/  
-NeoForged Discord: https://discord.neoforged.net/
+**The slash commands are as follows**
+
+| Command | Description |
+| ----------- | ----------- |
+| /ping | Pong! |
+| /tps | Shows current TPS. |
+| /server | Same as above command. |
+| /list | Gives you the online list. |
+| /disconnect | Allows you to force disconnect yourself if your client crashes but are still connected to the server. |
+| /whitelist | Whitelist yourself to the server |
+
+# Features
+* Configurable Auto Restart timer.
+* Discord log to show server startup/shutdown as well as logging the disconnect command
+* Self whitelisting command from discord
+* Minecraft <-> Discord Chat bridge (With support RGB for Users role color)
+
+## Potential Future Features:
+* More Logging?
+* /shrug

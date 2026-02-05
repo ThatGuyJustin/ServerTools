@@ -19,9 +19,10 @@ class StringUtils {
 
 fun Color.toHex(): String = "#${Integer.toHexString(this.rgb and 0xFFFFFF)}"
 
-fun Duration.toHumanReadable(): String = this.toComponents { hours, minutes, seconds, nanoseconds ->
-    (if(hours >= 1) "$hours Hour${if(hours > 1) "s" else ""} " else "") +
-    (if(minutes >= 1) "$minutes Minute${if(minutes > 1) "s" else ""} " else "") +
-    (if(hours < 1) "$seconds Second${if(seconds > 1) "s" else ""}" else "")
+fun Duration.toHumanReadable(): String = this.toComponents { days, hours, minutes, seconds, nanoseconds ->
+    ((if(days >= 1) "$days Day${if (days.toInt() != 1) "s" else ""} " else "") +
+    (if(hours >= 1) "$hours Hour${if(hours != 1) "s" else ""} " else "") +
+    (if(minutes >= 1 && days < 1) "$minutes Minute${if(minutes != 1) "s" else ""} " else "") +
+    (if(hours < 1 && days < 1) "$seconds Second${if(seconds != 1) "s" else ""}" else "")).trimEnd()
 }
 

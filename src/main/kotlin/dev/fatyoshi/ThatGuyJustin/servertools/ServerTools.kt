@@ -29,9 +29,12 @@ class ServerTools {
     private var adventure: MinecraftServerAudiences? = null
     private val noticesRegex = Regex("""^time=(?<duration>[^,]+),message=(?<message>.*)$""")
     private var discordHandler: DiscordHandler? = null
-    private var timer: Thread? = null
     private val mobFilter = HashMap<String, List<String>>()
-    private var timerStop = false
+
+    private var timer: Thread? = null
+    var timerActive = false
+    var restartDuration: Duration? = null
+    var timerStarted: Date? = null
     lateinit var startup: Date
 
     companion object {
@@ -53,7 +56,7 @@ class ServerTools {
     @SubscribeEvent
     fun onCommandReg(event: RegisterCommandsEvent) {
         MinecraftAdmiral.builder(event.dispatcher, event.buildContext).addCommandClasses(
-            Commands().javaClass, Uptime().javaClass
+            Commands().javaClass, Uptime().javaClass, Timer().javaClass
         ).build()
     }
 
@@ -72,62 +75,28 @@ class ServerTools {
 
     @SubscribeEvent
     fun onServerStarted(event: ServerStartedEvent) {
+        // Set times for initial startup and timer. Mainly used for time deltas.
         this.startup = Date()
 
+        // Start up the discord bot if enabled.
         if (Config.discordEnabled!!.get()) {
             Logger.info("Starting Discord Handler...", true)
             this.discordHandler = DiscordHandler(this.startup!!)
         }
 
+        // Mob Filter.
         this.parseValues()
 
+        // Anddddd start the timer!
         if (Config.enableRestartTimer!!.get() == false) return
-
-        timer = Thread {
-            try {
-                val restartIn = Duration.parse(Config.restartTime!!.get())
-
-                // Time to make the config more system readable...and sort it...
-                val rawMessageTimes = HashMap<Duration, String>()
-                Config.restartTimerNotices!!.get().forEach { rawCfgValue ->
-                    val match = noticesRegex.find(rawCfgValue)
-                    if (match != null) {
-                        val rawDuration = match.groups["duration"]?.value
-                        val message = match.groups["message"]?.value
-                        val duration = Duration.parse(rawDuration!!)
-                        if (message != null) rawMessageTimes[duration] = message
-                    }
-                }
-
-                // In the end we want it as longest duration to the shortest duration.
-                val messageTimes = rawMessageTimes.toSortedMap().reversed().toMap()
-
-
-                Logger.info("&fStartup Time&7: &a${this.startup}", true)
-                Logger.info("&fConfigured Restart Time&7: &a${this.startup!!.toInstant().plus(restartIn.toJavaDuration())}", true)
-                Logger.info("Timer started!", true)
-
-                var currentSleep = restartIn
-
-                messageTimes.forEach { (duration, message) ->
-                    sleepUntilBroadcast(currentSleep.minus(duration).inWholeMilliseconds, message )
-                    currentSleep = duration
-                }
-
-                instance.timerStop = true
-                instance.shutdownServer()
-            } catch (e: InterruptedException) {
-                Logger.warning("&cTimer interrupted, is the server restarting sooner?", true)
-            }
-        }
-        timer!!.name = "Server Shutdown Timer"
-        timer!!.start()
+        this.restartDuration = Duration.parse(Config.restartTime!!.get())
+        startTimer(startup=true)
     }
 
     @SubscribeEvent
     fun onServerShutdown(event: ServerStoppingEvent?) {
         Logger.info("Shutting down all handlers...", true)
-        if(!this.timerStop)
+        if(this.timerActive)
             try{
                 this.timer!!.interrupt()
             }catch (_: InterruptedException){
@@ -164,6 +133,65 @@ class ServerTools {
     //            }
     //        }
     //    }
+    fun stopTimer(){
+        timerActive = false
+        try{
+            this.timer!!.interrupt()
+        }catch (_: InterruptedException){}
+    }
+
+    fun startTimer(time: Duration? = null, startup: Boolean = false) {
+        if (startup)
+            instance.timerStarted = instance.startup
+        else
+            instance.timerStarted = Date()
+        timer = Thread {
+            try {
+                val restartIn = time ?: restartDuration
+
+                instance.restartDuration = restartIn
+
+                // Time to make the config more system readable...and sort it...
+                val rawMessageTimes = HashMap<Duration, String>()
+                Config.restartTimerNotices!!.get().forEach { rawCfgValue ->
+                    val match = noticesRegex.find(rawCfgValue)
+                    if (match != null) {
+                        val rawDuration = match.groups["duration"]?.value
+                        val message = match.groups["message"]?.value
+                        val duration = Duration.parse(rawDuration!!)
+                        if (message != null && duration < restartIn!!) rawMessageTimes[duration] = message
+                    }
+                }
+
+                // In the end we want it as longest duration to the shortest duration.
+                val messageTimes = rawMessageTimes.toSortedMap().reversed().toMap()
+
+                Logger.info("&fStartup Time&7: &a${this.startup}", true)
+                if(time != null){
+                    Logger.info("&fExpected Restart Time&7: &a${this.timerStarted!!.toInstant().plus(time.toJavaDuration())}", true)
+                }else{
+                    Logger.info("&fConfigured Restart Time&7: &a${this.timerStarted!!.toInstant().plus(restartIn!!.toJavaDuration())}", true)
+                }
+                instance.timerActive = true
+                Logger.info("Timer started!", true)
+
+                var currentSleep = restartIn
+
+                messageTimes.forEach { (duration, message) ->
+                    sleepUntilBroadcast(currentSleep!!.minus(duration).inWholeMilliseconds, message)
+                    currentSleep = duration
+                }
+
+                instance.timerActive = false
+                instance.shutdownServer()
+            } catch (e: InterruptedException) {
+                if(timerActive)
+                    Logger.warning("&cTimer interrupted, is the server restarting sooner?", true)
+            }
+        }
+        timer!!.name = "Server Shutdown Timer"
+        timer!!.start()
+    }
 
     fun getTPS(): Double {
         val meanTickTime = ServerLifecycleHooks.getCurrentServer()!!.averageTickTimeNanos * 1.0E-6
